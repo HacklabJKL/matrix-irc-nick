@@ -6,13 +6,17 @@ import json
 import requests
 import sqlite3
 
+bridge_server = 'irc.snt.utwente.nl'
+room_format = '#_ircnet_.+:irc.snt.utwente.nl'
+appservice_user = '@ircnet:irc.snt.utwente.nl'
+
 with open("config.yml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
 
 access_token = cfg['token']
 homeserver = cfg['server']
 
-# find all rooms that have an alias matching #_ircnet_.+:irc.snt.utwente.nl
+# find all rooms that have an alias matching given room format
 rooms = requests.get(
         "{}/_matrix/client/r0/joined_rooms".format(homeserver),
         params={
@@ -23,14 +27,14 @@ print("Joined rooms: {}".format(rooms))
 def is_ircnet_channel(room_id):
     try:
         aliases = requests.get(
-                "{}/_matrix/client/r0/rooms/{}/state/m.room.aliases/irc.snt.utwente.nl".format(homeserver, room_id),
+                "{}/_matrix/client/r0/rooms/{}/state/m.room.aliases/{}".format(homeserver, room_id, bridge_server),
                 params={
                     'access_token':access_token
                 }).json()['aliases']
     except KeyError:
         return False
     for alias in aliases:
-        if re.match('#_ircnet_.+:irc.snt.utwente.nl', alias):
+        if re.match(room_format, alias):
             return True
     return False
 
@@ -67,7 +71,7 @@ def change_irc_nick(user, membership):
                     'access_token': access_token,
                     'user_id': user
                 }).json()['joined']
-        return user in members and '@ircnet:irc.snt.utwente.nl' in members and len(members)==2
+        return user in members and appservice_user in members and len(members)==2
 
     ircnet_admin_rooms = [room for room in rooms if is_ircnet_admin_room(room, user)]
     print("Previous IRCNet admin rooms for {}: {}".format(user, ircnet_admin_rooms))
@@ -91,7 +95,7 @@ def change_irc_nick(user, membership):
                 json={
                     'preset':'trusted_private_chat',
                     'visibility':'private',
-                    'invite':['@ircnet:irc.snt.utwente.nl'],
+                    'invite':[appservice_user],
                     'is_direct':True,
                     'initial_state':[{
                         'content':{'guest_access':'can_join'},
@@ -104,7 +108,7 @@ def change_irc_nick(user, membership):
         room_id = ircnet_admin_rooms[0]
 
     time.sleep(2)
-    while '@ircnet:irc.snt.utwente.nl' not in requests.get("{}/_matrix/client/r0/rooms/{}/joined_members".format(homeserver, room_id), params={'access_token': access_token, 'user_id': user}).json()['joined']:
+    while appservice_user not in requests.get("{}/_matrix/client/r0/rooms/{}/joined_members".format(homeserver, room_id), params={'access_token': access_token, 'user_id': user}).json()['joined']:
         requests.post(
                 "{}/_matrix/client/r0/rooms/{}/invite".format(homeserver, room_id),
                 params={
@@ -112,7 +116,7 @@ def change_irc_nick(user, membership):
                     'user_id': user
                 },
                 json={
-                    'user_id': '@ircnet:irc.snt.utwente.nl'
+                    'user_id': appservice_user
                 })
         time.sleep(2)
     tgid = int(re.match('^@_telegram_([-0123456789]+):hacklab\.fi$', user)[1])
