@@ -1,0 +1,12 @@
+token: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+server: "https://matrix.example.com"
+mautrix_telegram_db: "/path/to//mautrix-telegram/mautrix-telegram.db"
+irc:
+    ircnet:
+        bridge_server: "irc.snt.utwente.nl"
+        room_alias_format: "#_ircnet_.+:irc.snt.utwente.nl"
+        appservice_user: "@ircnet:irc.snt.utwente.nl"
+    freenode:
+        bridge_server: "matrix.org"
+        room_alias_format: "#freenode_.+:matrix.org"
+        appservice_user: "@appservice-irc:matrix.org"
