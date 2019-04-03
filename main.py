@@ -4,13 +4,14 @@ import time
 import yaml
 import json
 import requests
-import sqlite3
+import psycopg2
 
 with open("config.yml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
 
 access_token = cfg['token']
 homeserver = cfg['server']
+conn = psycopg2.connect('dbname=mautrixtelegram')
 
 for network_name, network in cfg['irc'].items():
 
@@ -133,8 +134,10 @@ for network_name, network in cfg['irc'].items():
                 })             
     
     def get_telegram_name(tgid, displayname):
-        conn = sqlite3.connect(cfg['mautrix_telegram_db'])
-        username = conn.execute('select username from puppet where id=?', (tgid,)).fetchone()[0]
+        cur = conn.cursor()
+        cur.execute('select username from puppet where id=%s', (tgid,))
+        username = cur.fetchone()[0]
+        cur.close()
         print("Username for {} is {}".format(tgid, username))
         if username == None:
             return re.sub(' \[TG\]$', '', displayname)
