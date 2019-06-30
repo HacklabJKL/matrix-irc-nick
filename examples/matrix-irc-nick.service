@@ -1,0 +1,16 @@
+[Unit]
+Description=Rename Telegram users' IRC nicks
+After=mautrix-telegram.service
+Requires=mautrix-telegram.service
+
+[Service]
+Type=oneshot
+User=vurpo
+Group=vurpo
+WorkingDirectory=/home/vurpo/irc-bridge-hack
+ExecStart=/home/vurpo/irc-bridge-hack/venv/bin/python -u main.py
+# Give a reasonable amount of time for renaming
+TimeoutSec=2h
+
+[Install]
+WantedBy=multi-user.target

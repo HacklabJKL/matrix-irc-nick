@@ -1,6 +1,6 @@
 token: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 server: "https://matrix.example.com"
-mautrix_telegram_db: "/path/to//mautrix-telegram/mautrix-telegram.db"
+mautrix_telegram_db: "dbname=mautrixtelegram"
 irc:
     ircnet:
         bridge_server: "irc.snt.utwente.nl"

@@ -1,0 +1,10 @@
+[Unit]
+Description=Rename IRC nicks periodically
+
+[Timer]
+OnCalendar=*-*-* 04:56:20
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+

@@ -11,7 +11,7 @@ with open("config.yml", 'r') as ymlfile:
 
 access_token = cfg['token']
 homeserver = cfg['server']
-conn = psycopg2.connect('dbname=mautrixtelegram')
+conn = psycopg2.connect(cfg['mautrix_telegram_db'])
 
 for network_name, network in cfg['irc'].items():
 
