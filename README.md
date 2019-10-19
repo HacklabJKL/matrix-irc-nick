@@ -12,14 +12,33 @@ Copy [examples/config.yml](examples/config.yml) from example directory
 to the parent directory and edit it to your needs. You need to change
 at least the following:
 
-* `token`: Set to youk access token. You can get the token by curl or with [Swagger UI](https://matrix.org/docs/api/client-server/#!/Session32management/login)
+* `token`: Set to as_token of your telegram bot appservice. Copy it
+  from mautrix-telegram config file.
 * `server`: Set to your homeserver URL (including port)
-* `mautrix_telegram_db`: Set to PostgreSQL connect string to Mautrix-telegram's database.
+* `mautrix_telegram_db`: Set to PostgreSQL connect string to
+  Mautrix-telegram's database.
 
 ### Python requirements
 
-Set up virtualenv or install dependencies globally. We use
-virtualenv. TODO improve instructions.
+Set up virtualenv or install dependencies globally. This script is so
+simple so I suggest installing dependencies from APT.
+
+In Ubuntu and Debian, run:
+
+```sh
+sudo apt install python3-yaml python3-psycopg2
+```
+
+### PostgreSQL privileges
+
+If your username is *matrix-irc-nick* and database name is
+*mautrix-telegrem:
+
+```sql
+CREATE USER "matrix-irc-nick";
+\c mautrix-telegram
+GRANT SELECT ON puppet TO "matrix-irc-nick";
+```
 
 ### Make it automatic
 

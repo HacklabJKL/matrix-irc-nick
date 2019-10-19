@@ -1,5 +1,5 @@
 token: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-server: "https://matrix.example.com"
+server: "http://localhost:8008"
 mautrix_telegram_db: "dbname=mautrixtelegram"
 irc:
     ircnet:
