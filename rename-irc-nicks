@@ -16,8 +16,10 @@ conn = psycopg2.connect(cfg['mautrix_telegram_db'])
 ## Take Matrix displayname and remove all invalid IRC characters
 def ircify_displayname(displayname, bridge):
     print("ircifying name {}".format(displayname))
+    discord_antipattern = re.compile("#[0-9]{4}$")
+    ircified = re.sub(discord_antipattern, '', displayname)
     allowed = string.ascii_letters+string.digits+'_-\[]{}^`|'
-    ircified = "".join(list(filter(allowed.__contains__, displayname)))
+    ircified = "".join(list(filter(allowed.__contains__, ircified)))
     ircified = ircified.lstrip('-0123456789')
 
     ircified = ircified[:12]
