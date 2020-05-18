@@ -4,13 +4,11 @@ import string
 import time
 import yaml
 import requests
-import psycopg2
 
 with open("config.yaml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
 
 homeserver = cfg['server']
-conn = psycopg2.connect(cfg['mautrix_telegram_db'])
 
 ## Take Matrix displayname and remove all invalid IRC characters
 def ircify_displayname(displayname, bridge):
@@ -133,7 +131,6 @@ def process_network(bridge, network):
                         'user_id': network['appservice_user']
                     })
             time.sleep(2)
-        tgid = int(re.match('^@_telegram_([-0123456789]+):hacklab\.fi$', user)[1])
         txnid = str(time.time())
         requests.put(
                 "{}/_matrix/client/r0/rooms/{}/send/m.room.message/{}".format(homeserver, room_id, txnid),
@@ -143,21 +140,10 @@ def process_network(bridge, network):
                 },
                 json={
                     'msgtype': 'm.text',
-                    'body': "!nick {}".format(ircify_displayname(get_telegram_name(tgid, membership['display_name']), bridge))
+                    'body': "!nick {}".format(ircify_displayname(membership['display_name'], bridge))
                 })             
-    
-    def get_telegram_name(tgid, displayname):
-        cur = conn.cursor()
-        cur.execute('select username from puppet where id=%s', (tgid,))
-        username = cur.fetchone()[0]
-        cur.close()
-        print("Username for {} is {}".format(tgid, username))
-        if username == None:
-            return re.sub(' \[TG\]$', '', displayname)
-        else:
-            return username
 
-    # for each of those users: change IRC nick to ircified telegram displayname
+    # for each of those users: change IRC nick to ircified displayname
     for user, membership in irc_users.items():
         change_irc_nick(user, membership)
 
