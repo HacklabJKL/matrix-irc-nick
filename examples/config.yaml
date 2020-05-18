@@ -1,5 +1,3 @@
-bridge_id: "@telegrambot:homeserver.example.com"
-token: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 server: "http://localhost:8008"
 mautrix_telegram_db: "dbname=mautrixtelegram"
 irc:
@@ -11,3 +9,8 @@ irc:
         bridge_server: "matrix.org"
         room_alias_format: "#freenode_.+:matrix.org"
         appservice_user: "@appservice-irc:matrix.org"
+bridge:
+    telegram:
+        mxid: "@telegrambot:homeserver.example.com"
+        token: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        irc_suffix: "[t]"

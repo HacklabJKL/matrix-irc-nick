@@ -3,26 +3,25 @@ import re
 import string
 import time
 import yaml
-import json
 import requests
 import psycopg2
 
 with open("config.yaml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
 
-access_token = cfg['token']
+bridge = cfg['bridge']['telegram']
 homeserver = cfg['server']
 conn = psycopg2.connect(cfg['mautrix_telegram_db'])
 
 ## Take Matrix displayname and remove all invalid IRC characters
-def ircify_displayname(displayname):
+def ircify_displayname(displayname, bridge):
     print("ircifying name {}".format(displayname))
     allowed = string.ascii_letters+string.digits+'_-\[]{}^`|'
     ircified = "".join(list(filter(allowed.__contains__, displayname)))
     ircified = ircified.lstrip('-0123456789')
 
     ircified = ircified[:12]
-    ircified += '[t]'
+    ircified += bridge['irc_suffix']
     print("ircified name is {}".format(ircified))
 
     return ircified
@@ -35,7 +34,7 @@ for network_name, network in cfg['irc'].items():
     rooms = requests.get(
             "{}/_matrix/client/r0/joined_rooms".format(homeserver),
             params={
-                'access_token':access_token
+                'access_token': bridge['token']
             }).json()['joined_rooms']
     print("Joined rooms: {}".format(rooms))
     
@@ -44,8 +43,8 @@ for network_name, network in cfg['irc'].items():
             aliases = requests.get(
                     "{}/_matrix/client/r0/rooms/{}/state/m.room.aliases/{}".format(homeserver, room_id, network['bridge_server']),
                     params={
-                        'user_id': cfg['bridge_id'],
-                        'access_token':access_token
+                        'user_id': bridge['mxid'],
+                        'access_token': bridge['token']
                     }).json()['aliases']
         except KeyError:
             return False
@@ -63,7 +62,7 @@ for network_name, network in cfg['irc'].items():
         members = requests.get(
                 "{}/_matrix/client/r0/rooms/{}/joined_members".format(homeserver, room),
                 params={
-                    'access_token':access_token
+                    'access_token': bridge['token']
                     }).json()['joined']
         for member in members:
             if re.match('@_telegram_.+:hacklab.fi', member):
@@ -76,7 +75,7 @@ for network_name, network in cfg['irc'].items():
         rooms = requests.get(
                 "{}/_matrix/client/r0/joined_rooms".format(homeserver),
                 params={
-                    'access_token': access_token,
+                    'access_token': bridge['token'],
                     'user_id': user
                 }).json()['joined_rooms']
     
@@ -84,7 +83,7 @@ for network_name, network in cfg['irc'].items():
             members = requests.get(
                     "{}/_matrix/client/r0/rooms/{}/joined_members".format(homeserver, room_id),
                     params={
-                        'access_token': access_token,
+                        'access_token': bridge['token'],
                         'user_id': user
                     }).json()['joined']
             return user in members and network['appservice_user'] in members and len(members)==2
@@ -98,13 +97,13 @@ for network_name, network in cfg['irc'].items():
                 requests.post(
                         "{}/_matrix/client/r0/rooms/{}/leave".format(homeserver, room),
                         params={
-                            'access_token': access_token,
+                            'access_token': bridge['token'],
                             'user_id': user
                         })
             adminroom = requests.post(
                     "{}/_matrix/client/r0/createRoom".format(homeserver),
                     params={
-                        'access_token': access_token,
+                        'access_token': bridge['token'],
                         'user_id': user
                     },
                     # this payload is just copied straight from Riot
@@ -124,11 +123,11 @@ for network_name, network in cfg['irc'].items():
             room_id = ircnet_admin_rooms[0]
     
         time.sleep(2)
-        while network['appservice_user'] not in requests.get("{}/_matrix/client/r0/rooms/{}/joined_members".format(homeserver, room_id), params={'access_token': access_token, 'user_id': user}).json()['joined']:
+        while network['appservice_user'] not in requests.get("{}/_matrix/client/r0/rooms/{}/joined_members".format(homeserver, room_id), params={'access_token': bridge['token'], 'user_id': user}).json()['joined']:
             requests.post(
                     "{}/_matrix/client/r0/rooms/{}/invite".format(homeserver, room_id),
                     params={
-                        'access_token': access_token,
+                        'access_token': bridge['token'],
                         'user_id': user
                     },
                     json={
@@ -140,12 +139,12 @@ for network_name, network in cfg['irc'].items():
         requests.put(
                 "{}/_matrix/client/r0/rooms/{}/send/m.room.message/{}".format(homeserver, room_id, txnid),
                 params={
-                    'access_token': access_token,
+                    'access_token': bridge['token'],
                     'user_id': user
                 },
                 json={
                     'msgtype': 'm.text',
-                    'body': "!nick {}".format(ircify_displayname(get_telegram_name(tgid, membership['display_name'])))
+                    'body': "!nick {}".format(ircify_displayname(get_telegram_name(tgid, membership['display_name']), bridge))
                 })             
     
     def get_telegram_name(tgid, displayname):
