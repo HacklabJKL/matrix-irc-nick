@@ -45,24 +45,12 @@ def process_network(bridge, network):
                 'access_token': bridge['token']
             }).json()['joined_rooms']
     print("Joined rooms: {}".format(rooms))
-    
-    def is_irc_channel(room_id):
-        try:
-            aliases = requests.get(
-                    "{}/_matrix/client/r0/rooms/{}/state/m.room.aliases/{}".format(homeserver, room_id, network['bridge_server']),
-                    params={
-                        'user_id': bridge['mxid'],
-                        'access_token': bridge['token']
-                    }).json()['aliases']
-        except KeyError:
-            return False
-        for alias in aliases:
-            if re.match(network['room_alias_format'], alias):
+
+    def is_irc_channel(members):
+        for mxid in members:
+            if mxid == network['appservice_user']:
                 return True
         return False
-    
-    rooms = [room for room in rooms if is_irc_channel(room)]
-    print("IRC channels: {}".format(rooms))
     
     # get all users in all those rooms that have IDs matching puppet user MXID regex
     irc_users = {}
@@ -72,6 +60,12 @@ def process_network(bridge, network):
                 params={
                     'access_token': bridge['token']
                     }).json()['joined']
+
+        # Check first if this belongs to this IRC network
+        if not is_irc_channel(members):
+            continue
+        print("{} is an IRC channel".format(room))
+
         for mxid, member in members.items():
             if re.match(bridge['regex'], mxid):
                 irc_users[mxid] = member
