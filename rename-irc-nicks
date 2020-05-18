@@ -12,7 +12,6 @@ homeserver = cfg['server']
 
 ## Take Matrix displayname and remove all invalid IRC characters
 def ircify_displayname(displayname, bridge):
-    print("ircifying name {}".format(displayname))
     discord_antipattern = re.compile("#[0-9]{4}$")
     ircified = re.sub(discord_antipattern, '', displayname)
     allowed = string.ascii_letters+string.digits+'_-\[]{}^`|'
@@ -21,7 +20,6 @@ def ircify_displayname(displayname, bridge):
 
     ircified = ircified[:12]
     ircified += bridge['irc_suffix']
-    print("ircified name is {}".format(ircified))
 
     return ircified
 
@@ -132,6 +130,8 @@ def process_network(bridge, network):
                     })
             time.sleep(2)
         txnid = str(time.time())
+        ircified = ircify_displayname(membership['display_name'], bridge)
+        print("ircifying {} to {}".format(membership['display_name'], ircified))
         requests.put(
                 "{}/_matrix/client/r0/rooms/{}/send/m.room.message/{}".format(homeserver, room_id, txnid),
                 params={
@@ -140,7 +140,7 @@ def process_network(bridge, network):
                 },
                 json={
                     'msgtype': 'm.text',
-                    'body': "!nick {}".format(ircify_displayname(membership['display_name'], bridge))
+                    'body': "!nick {}".format(ircified)
                 })             
 
     # for each of those users: change IRC nick to ircified displayname
