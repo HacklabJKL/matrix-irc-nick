@@ -72,9 +72,9 @@ def process_network(bridge, network):
                 params={
                     'access_token': bridge['token']
                     }).json()['joined']
-        for member in members:
-            if re.match(bridge['regex'], member):
-                irc_users[member] = members[member]
+        for mxid, member in members.items():
+            if re.match(bridge['regex'], mxid):
+                irc_users[mxid] = member
     print("IRC users: {}".format(irc_users))
     
     ## Change IRC nick:
