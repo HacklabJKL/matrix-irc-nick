@@ -9,7 +9,6 @@ import psycopg2
 with open("config.yaml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
 
-bridge = cfg['bridge']['telegram']
 homeserver = cfg['server']
 conn = psycopg2.connect(cfg['mautrix_telegram_db'])
 
@@ -28,9 +27,7 @@ def ircify_displayname(displayname, bridge):
 
     return ircified
 
-for network_name, network in cfg['irc'].items():
-
-    print("Processing {}...".format(network_name))
+def process_network(bridge, network):
     
     # find all rooms that have an alias matching given room format
     rooms = requests.get(
@@ -163,3 +160,9 @@ for network_name, network in cfg['irc'].items():
     # for each of those users: change IRC nick to ircified telegram displayname
     for user, membership in ircnet_users.items():
         change_irc_nick(user, membership)
+
+# Main loop: Iterate through every IRC network in all bridges
+for bridge_name, bridge in cfg['bridge'].items():
+    for network_name, network in cfg['irc'].items():
+        print("Processing {} puppets on {}...".format(bridge_name, network_name))
+        process_network(bridge, network)
