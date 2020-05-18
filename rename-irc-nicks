@@ -53,7 +53,7 @@ def process_network(bridge, network):
     rooms = [room for room in rooms if is_irc_channel(room)]
     print("IRC channels: {}".format(rooms))
     
-    # get all users in all those rooms that have IDs matching @_telegram_.+:hacklab.fi
+    # get all users in all those rooms that have IDs matching puppet user MXID regex
     irc_users = {}
     for room in rooms:
         members = requests.get(
@@ -62,9 +62,9 @@ def process_network(bridge, network):
                     'access_token': bridge['token']
                     }).json()['joined']
         for member in members:
-            if re.match('@_telegram_.+:hacklab.fi', member):
+            if re.match(bridge['regex'], member):
                 irc_users[member] = members[member]
-    print("IRC users from Telegram: {}".format(irc_users))
+    print("IRC users: {}".format(irc_users))
     
     ## Change IRC nick:
     def change_irc_nick(user, membership):
