@@ -1,3 +1,4 @@
+bridge_id: "@telegrambot:homeserver.example.com"
 token: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 server: "http://localhost:8008"
 mautrix_telegram_db: "dbname=mautrixtelegram"

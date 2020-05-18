@@ -31,6 +31,7 @@ for network_name, network in cfg['irc'].items():
             aliases = requests.get(
                     "{}/_matrix/client/r0/rooms/{}/state/m.room.aliases/{}".format(homeserver, room_id, network['bridge_server']),
                     params={
+                        'user_id': cfg['bridge_id'],
                         'access_token':access_token
                     }).json()['aliases']
         except KeyError:
