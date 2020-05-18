@@ -8,6 +8,7 @@ import requests
 with open("config.yaml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
 
+dry_run = False
 homeserver = cfg['server']
 
 ## Take Matrix displayname and remove all invalid IRC characters
@@ -116,7 +117,12 @@ def process_network(bridge, network):
         else:
             print("Reusing admin room")
             room_id = irc_admin_rooms[0]
-    
+
+        if dry_run:
+            ircified = ircify_displayname(membership['display_name'], bridge)
+            print("dry-run: would ircify {} to {}".format(membership['display_name'], ircified))
+            return # Skip actual renaming
+
         time.sleep(2)
         while network['appservice_user'] not in requests.get("{}/_matrix/client/r0/rooms/{}/joined_members".format(homeserver, room_id), params={'access_token': bridge['token'], 'user_id': user}).json()['joined']:
             requests.post(
