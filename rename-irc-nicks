@@ -4,6 +4,7 @@ import string
 import time
 import yaml
 import requests
+from unidecode import unidecode
 
 with open("config.yaml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
@@ -13,12 +14,22 @@ homeserver = cfg['server']
 
 ## Take Matrix displayname and remove all invalid IRC characters
 def ircify_displayname(displayname, bridge):
+    # Special cases: Whatsapp phone numbers and Discord nicknames with '#'
     discord_antipattern = re.compile("#[0-9]{4}$")
+    whatsapp_fi_phone = re.compile("^\+358")
+    whatsapp_phone = re.compile("^\+")
     ircified = re.sub(discord_antipattern, '', displayname)
+    ircified = re.sub(whatsapp_fi_phone, 'o', ircified)
+    ircified = re.sub(whatsapp_phone, 'p', ircified)
+    # Now making the whole string more friendly on IRC. First try transliteration
+    ircified = unidecode(ircified)
+    # Remove even some ascii chars which aro not allowed in IRC
     allowed = string.ascii_letters+string.digits+'_-\[]{}^`|'
     ircified = "".join(list(filter(allowed.__contains__, ircified)))
-    ircified = ircified.lstrip('-0123456789')
-
+    # Then, add prefix if still has illegal char at start
+    number_prefix = re.compile("^[-0-9]*")
+    ircified = re.sub(number_prefix, '', ircified)
+    # Finally, collect 12 first characters
     ircified = ircified[:12]
     ircified += bridge['irc_suffix']
 
@@ -30,6 +41,7 @@ def process_network(bridge, network):
     rooms = requests.get(
             "{}/_matrix/client/r0/joined_rooms".format(homeserver),
             params={
+                'user_id': bridge['mxid'],
                 'access_token': bridge['token']
             }).json()['joined_rooms']
     print("Joined rooms: {}".format(rooms))
