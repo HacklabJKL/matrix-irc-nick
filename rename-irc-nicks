@@ -19,7 +19,7 @@ def ircify_displayname(displayname, bridge):
     whatsapp_fi_phone = re.compile("^\+358")
     whatsapp_phone = re.compile("^\+")
     ircified = re.sub(discord_antipattern, '', displayname)
-    ircified = re.sub(whatsapp_fi_phone, 'o', ircified)
+    ircified = re.sub(whatsapp_fi_phone, 'O', ircified)
     ircified = re.sub(whatsapp_phone, 'p', ircified)
     # Now making the whole string more friendly on IRC. First try transliteration
     ircified = unidecode(ircified)
