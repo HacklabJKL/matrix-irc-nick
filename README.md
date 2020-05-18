@@ -1,22 +1,34 @@
 # IRC nick batch renamer tool for Matrix
 
-This script renames IRC nicks of
-[Mautrix-telegram](https://github.com/tulir/mautrix-telegram/) users
-based on their Telegram user names. This script can be expanded to
-rename other puppets as well but currently supports Mautrix-telegram
-only.
+This script renames IRC nicks of puppeting bridge users to more sane
+counterparts. The design goal is to make IRC users' life more pleasant by
+the following ways:
+
+* **Nick list looks good**. It is easier to see who you are actually talking to. For example umlaut characters and other non-ASCII characters in nicks are not just silently dropped but best effort is done to transliterate them to ASCII.
+* **It's easy to see if you can PM to somebody**. Unlike native Matrix users which can talk to IRC users in private, the puppet users cannot handle that. When you see `^something` in the nick, you are warned.
+* **Puppet users do not pollute IRC nickspace**. If a Telegram puppet is having a nick *Joe*, he wouldn't steal nick `Joe` on IRC but occupies `Joe^t`instead.
+
+The following puppeting bridges are tested to work with this script:
+* [Mautrix-Telegram](https://github.com/tulir/mautrix-telegram)
+* [Mautrix-Whatsapp](https://github.com/tulir/mautrix-whatsapp)
+* [Matrix Discord Bridge](https://github.com/Half-Shot/matrix-appservice-discord)
+* [Matrix-appservice-slack](https://github.com/matrix-org/matrix-appservice-slack)
 
 ## Installation
 
 Copy [examples/config.yml](examples/config.yml) from example directory
 to the parent directory and edit it to your needs. You need to change
-at least the following:
+the following global setting:
 
-* `token`: Set to as_token of your telegram bot appservice. Copy it
-  from mautrix-telegram config file.
-* `server`: Set to your homeserver URL (including port)
-* `mautrix_telegram_db`: Set to PostgreSQL connect string to
-  Mautrix-telegram's database.
+* `server`: Set to your homeserver URL (including port).
+
+And for every puppeting bridge you need the following:
+
+* `token`: Set to as_token of your puppeting brudge. Copy it
+  from your appservice's config file.
+* `mxid`: Appservice bot MXID. Used to find the channels where puppets reside.
+* `regex`: Pattern to match to user MXIDs to see if it's a puppet.
+* `irc_suffix`: String to add to the end of the nickname (such as `^t`)
 
 ### Python requirements
 
@@ -26,18 +38,7 @@ simple so I suggest installing dependencies from APT.
 In Ubuntu and Debian, run:
 
 ```sh
-sudo apt install python3-yaml python3-psycopg2
-```
-
-### PostgreSQL privileges
-
-If your username is *matrix-irc-nick* and database name is
-*mautrix-telegrem:
-
-```sql
-CREATE USER "matrix-irc-nick";
-\c mautrix-telegram
-GRANT SELECT ON puppet TO "matrix-irc-nick";
+sudo apt install python3-yaml python3-unidecode
 ```
 
 ### Make it automatic
@@ -72,6 +73,14 @@ its room alias format and appservice matrix id.
 Add those to config.yml and please submit pull request to make them
 mainstream. The required parameters can be found from
 [List of bridged IRC networks](https://github.com/matrix-org/matrix-appservice-irc/wiki/Bridged-IRC-networks).
+
+## If you plan to run this
+
+If you plan to run this, it will compete with Hacklab Finlands instance
+on those IRC networks we are on which are IRCNet and Freenode.
+That leads to messy behaviour on both sides. We would
+like to coordinate this somehow so please contact us first. On private
+IRC networks there is no problem.
 
 ## Maintainer
 
