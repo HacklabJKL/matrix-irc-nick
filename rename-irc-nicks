@@ -37,7 +37,7 @@ def process_network(bridge, network):
             }).json()['joined_rooms']
     print("Joined rooms: {}".format(rooms))
     
-    def is_ircnet_channel(room_id):
+    def is_irc_channel(room_id):
         try:
             aliases = requests.get(
                     "{}/_matrix/client/r0/rooms/{}/state/m.room.aliases/{}".format(homeserver, room_id, network['bridge_server']),
@@ -52,11 +52,11 @@ def process_network(bridge, network):
                 return True
         return False
     
-    rooms = [room for room in rooms if is_ircnet_channel(room)]
+    rooms = [room for room in rooms if is_irc_channel(room)]
     print("IRC channels: {}".format(rooms))
     
     # get all users in all those rooms that have IDs matching @_telegram_.+:hacklab.fi
-    ircnet_users = {}
+    irc_users = {}
     for room in rooms:
         members = requests.get(
                 "{}/_matrix/client/r0/rooms/{}/joined_members".format(homeserver, room),
@@ -65,8 +65,8 @@ def process_network(bridge, network):
                     }).json()['joined']
         for member in members:
             if re.match('@_telegram_.+:hacklab.fi', member):
-                ircnet_users[member] = members[member]
-    print("IRC users from Telegram: {}".format(ircnet_users))
+                irc_users[member] = members[member]
+    print("IRC users from Telegram: {}".format(irc_users))
     
     ## Change IRC nick:
     def change_irc_nick(user, membership):
@@ -78,7 +78,7 @@ def process_network(bridge, network):
                     'user_id': user
                 }).json()['joined_rooms']
     
-        def is_ircnet_admin_room(room_id, user):
+        def is_irc_admin_room(room_id, user):
             members = requests.get(
                     "{}/_matrix/client/r0/rooms/{}/joined_members".format(homeserver, room_id),
                     params={
@@ -87,11 +87,11 @@ def process_network(bridge, network):
                     }).json()['joined']
             return user in members and network['appservice_user'] in members and len(members)==2
     
-        ircnet_admin_rooms = [room for room in rooms if is_ircnet_admin_room(room, user)]
-        print("Previous IRC admin rooms for {}: {}".format(user, ircnet_admin_rooms))
+        irc_admin_rooms = [room for room in rooms if is_irc_admin_room(room, user)]
+        print("Previous IRC admin rooms for {}: {}".format(user, irc_admin_rooms))
     
-        if len(ircnet_admin_rooms) != 1:
-            for room in ircnet_admin_rooms:
+        if len(irc_admin_rooms) != 1:
+            for room in irc_admin_rooms:
                 # just leave all the previous admin rooms if they exist
                 requests.post(
                         "{}/_matrix/client/r0/rooms/{}/leave".format(homeserver, room),
@@ -119,7 +119,7 @@ def process_network(bridge, network):
             room_id = adminroom.json()['room_id']
         else:
             print("Reusing admin room")
-            room_id = ircnet_admin_rooms[0]
+            room_id = irc_admin_rooms[0]
     
         time.sleep(2)
         while network['appservice_user'] not in requests.get("{}/_matrix/client/r0/rooms/{}/joined_members".format(homeserver, room_id), params={'access_token': bridge['token'], 'user_id': user}).json()['joined']:
@@ -158,7 +158,7 @@ def process_network(bridge, network):
             return username
 
     # for each of those users: change IRC nick to ircified telegram displayname
-    for user, membership in ircnet_users.items():
+    for user, membership in irc_users.items():
         change_irc_nick(user, membership)
 
 # Main loop: Iterate through every IRC network in all bridges
