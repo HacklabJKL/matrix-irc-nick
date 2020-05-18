@@ -14,6 +14,19 @@ access_token = cfg['token']
 homeserver = cfg['server']
 conn = psycopg2.connect(cfg['mautrix_telegram_db'])
 
+## Take Matrix displayname and remove all invalid IRC characters
+def ircify_displayname(displayname):
+    print("ircifying name {}".format(displayname))
+    allowed = string.ascii_letters+string.digits+'_-\[]{}^`|'
+    ircified = "".join(list(filter(allowed.__contains__, displayname)))
+    ircified = ircified.lstrip('-0123456789')
+
+    ircified = ircified[:12]
+    ircified += '[t]'
+    print("ircified name is {}".format(ircified))
+
+    return ircified
+
 for network_name, network in cfg['irc'].items():
 
     print("Processing {}...".format(network_name))
@@ -145,21 +158,7 @@ for network_name, network in cfg['irc'].items():
             return re.sub(' \[TG\]$', '', displayname)
         else:
             return username
-    
-    ## ircify displayname
-    # take Matrix displayname and remove all invalid IRC characters
-    def ircify_displayname(displayname):
-        print("ircifying name {}".format(displayname))
-        allowed = string.ascii_letters+string.digits+'_-\[]{}^`|'
-        ircified = "".join(list(filter(allowed.__contains__, displayname)))
-        ircified = ircified.lstrip('-0123456789')
-    
-        ircified = ircified[:12]
-        ircified += '[t]'
-        print("ircified name is {}".format(ircified))
-    
-        return ircified
-    
+
     # for each of those users: change IRC nick to ircified telegram displayname
     for user, membership in ircnet_users.items():
         change_irc_nick(user, membership)
