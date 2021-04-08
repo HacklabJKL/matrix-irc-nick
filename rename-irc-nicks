@@ -5,6 +5,11 @@ import time
 import yaml
 import requests
 from unidecode import unidecode
+from os import fdopen
+import sys
+
+# Line buffering, better for journals
+sys.stdout = fdopen(sys.stdout.fileno(), 'w', buffering=1)
 
 with open("config.yaml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
@@ -16,8 +21,8 @@ homeserver = cfg['server']
 def ircify_displayname(displayname, bridge):
     # Special cases: Whatsapp phone numbers and Discord nicknames with '#'
     discord_antipattern = re.compile("#[0-9]{4}$")
-    whatsapp_fi_phone = re.compile("^\+358")
-    whatsapp_phone = re.compile("^\+")
+    whatsapp_fi_phone = re.compile("^whatsapp_358")
+    whatsapp_phone = re.compile("^whatsapp_")
     ircified = re.sub(discord_antipattern, '', displayname)
     ircified = re.sub(whatsapp_fi_phone, 'O', ircified)
     ircified = re.sub(whatsapp_phone, 'p', ircified)
@@ -74,6 +79,11 @@ def process_network(bridge, network):
     ## Change IRC nick:
     def change_irc_nick(user, membership):
         print("Changing IRC nick for {} {}".format(user, membership))
+
+        if membership['display_name'] is None:
+            print("Skipping {} because has no display name".format(user))
+            return
+
         rooms = requests.get(
                 "{}/_matrix/client/r0/joined_rooms".format(homeserver),
                 params={
@@ -157,7 +167,10 @@ def process_network(bridge, network):
 
     # for each of those users: change IRC nick to ircified displayname
     for user, membership in irc_users.items():
-        change_irc_nick(user, membership)
+        try:
+            change_irc_nick(user, membership)
+        except KeyError as err:
+            print("Error changing nickname {0}. Error: {1}".format(user,err))
 
 # Main loop: Iterate through every IRC network in all bridges
 for bridge_name, bridge in cfg['bridge'].items():
