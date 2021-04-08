@@ -21,11 +21,13 @@ homeserver = cfg['server']
 def ircify_displayname(displayname, bridge):
     # Special cases: Whatsapp phone numbers and Discord nicknames with '#'
     discord_antipattern = re.compile("#[0-9]{4}$")
+    tg_anon = re.compile("_telegram_")
     whatsapp_fi_phone = re.compile("^whatsapp_358")
     whatsapp_phone = re.compile("^whatsapp_")
     ircified = re.sub(discord_antipattern, '', displayname)
-    ircified = re.sub(whatsapp_fi_phone, 'O', ircified)
-    ircified = re.sub(whatsapp_phone, 'p', ircified)
+    ircified = re.sub(whatsapp_fi_phone, '|0', ircified)
+    ircified = re.sub(whatsapp_phone, '|', ircified)
+    ircified = re.sub(tg_anon, '|', ircified)
     # Now making the whole string more friendly on IRC. First try transliteration
     ircified = unidecode(ircified)
     # Remove even some ascii chars which aro not allowed in IRC
