@@ -76,7 +76,7 @@ mainstream. The required parameters can be found from
 
 ## If you plan to run this
 
-If you plan to run this, it will compete with Hacklab Finlands instance
+If you plan to run this, it will compete with Hacklab Finland's instance
 on IRCNet.
 That leads to messy behaviour on both sides. We would
 like to coordinate this somehow so please contact us first. On private
