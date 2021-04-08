@@ -12,4 +12,4 @@ bridge:
         mxid: "@telegrambot:homeserver.example.com"
         regex: "@_telegram_.+:homeserver.example.com"
         token: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-        irc_suffix: "[t]"
+        irc_suffix: "|t"
