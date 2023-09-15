@@ -76,11 +76,15 @@ mainstream. The required parameters can be found from
 
 ## If you plan to run this
 
-If you plan to run this, it will compete with Hacklab Finland's instance
-on IRCNet.
-That leads to messy behaviour on both sides. We would
-like to coordinate this somehow so please contact us first. On private
+If you plan to run this, it will compete with other matrix-irc-nick instances
+on the same IRC network and leads to messy behaviour on both sides. So please coordinate the usage somehow with others. On private
 IRC networks there is no problem.
+
+Hacklab Finland used this script to rename IRCNet puppets from January 2019 to September 2023.
+The sunset of renaming happened because they've shifted to using
+[Heisenbridge](https://github.com/hifi/heisenbridge) instead of
+[matrix-appservice-irc](https://github.com/matrix-org/matrix-appservice-irc)
+because the latter was beyond repair.
 
 ## Maintainer
 
