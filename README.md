@@ -90,5 +90,5 @@ because the latter was beyond repair.
 
 The first version was written by [vurpo](https://github.com/vurpo) and
 has been refactored by [Zouppen](https://github.com/zouppen/). Maintained by
-[Hacklab.fi](https://hacklab.fi/) community and actively used on
-Hacklab.fi's Matrix home server.
+[Hacklab.fi](https://hacklab.fi/) community and was actively used on
+Hacklab.fi's Matrix home server until September 2023.
