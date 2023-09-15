@@ -80,7 +80,7 @@ If you plan to run this, it will compete with other matrix-irc-nick instances
 on the same IRC network and leads to messy behaviour on both sides. So please coordinate the usage somehow with others. On private
 IRC networks there is no problem.
 
-Hacklab Finland used this script to rename IRCNet puppets from January 2019 to September 2023.
+Hacklab Finland used this script to rename IRCNet puppets from 2019 to September 2023.
 The sunset of renaming happened because they've shifted to using
 [Heisenbridge](https://github.com/hifi/heisenbridge) instead of
 [matrix-appservice-irc](https://github.com/matrix-org/matrix-appservice-irc)
